@@ -1,0 +1,9 @@
+.tools/
+.dotnet-install.ps1
+**/bin/
+**/obj/
+Data/
+artifacts/
+.vs/
+*.user
+*.suo

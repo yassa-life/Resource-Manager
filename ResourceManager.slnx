@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="src/ResourceManager.Core/ResourceManager.Core.csproj" />
+  <Project Path="src/ResourceManager.Infrastructure.Windows/ResourceManager.Infrastructure.Windows.csproj" />
+  <Project Path="src/ResourceManager.App/ResourceManager.App.csproj" />
+  <Project Path="tests/ResourceManager.Core.Tests/ResourceManager.Core.Tests.csproj" />
+  <Project Path="tests/ResourceManager.Smoke/ResourceManager.Smoke.csproj" />
+</Solution>
