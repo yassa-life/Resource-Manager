@@ -1,0 +1,19 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ResourceManager.App.App"
+             RequestedThemeVariant="Dark">
+  <Application.Resources>
+    <x:Double x:Key="ConsoleBodySize">12</x:Double>
+    <x:Double x:Key="ConsoleSmallSize">11</x:Double>
+    <x:Double x:Key="ConsoleTitleSize">17</x:Double>
+  </Application.Resources>
+  <Application.Styles>
+    <FluentTheme DensityStyle="Compact">
+      <FluentTheme.Palettes>
+        <ColorPaletteResources x:Key="Dark" Accent="#88B9AD" />
+      </FluentTheme.Palettes>
+    </FluentTheme>
+    <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+    <StyleInclude Source="avares://ResourceManager.App/Styles.axaml" />
+  </Application.Styles>
+</Application>

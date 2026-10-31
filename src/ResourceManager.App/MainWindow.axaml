@@ -1,0 +1,193 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:ResourceManager.App"
+        x:Class="ResourceManager.App.MainWindow"
+        Title="Resource Manager" Width="1280" Height="800" MinWidth="1000" MinHeight="650" WindowStartupLocation="CenterScreen"
+        Background="#0D0D10">
+  <Grid RowDefinitions="*,28">
+    <TabControl Grid.Row="0" x:Name="MainTabs" Classes="main-nav" TabStripPlacement="Left">
+      <TabItem><TabItem.Header><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Width="14" Height="14" Data="M2,2 H7 V7 H2 Z M10,2 H15 V7 H10 Z M2,10 H7 V15 H2 Z M10,10 H15 V15 H10 Z"/><TextBlock VerticalAlignment="Center" Text="overview"/></StackPanel></TabItem.Header>
+        <ScrollViewer><Grid x:Name="OverviewLayout" Margin="18" ColumnDefinitions="230,*,260" ColumnSpacing="14" RowDefinitions="Auto,*">
+          <StackPanel Grid.ColumnSpan="3" Margin="0,0,0,20" Spacing="4">
+            <TextBlock Classes="page-title" Text="system / overview"/><ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}"/>
+            <TextBlock Classes="muted" Text="local system console / select a row to inspect its evidence"/>
+          </StackPanel>
+          <StackPanel Grid.Row="1" Grid.Column="0" Spacing="18">
+            <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="system"/>
+              <Border Classes="card"><StackPanel Spacing="10"><TextBlock Classes="muted" Text="cpu usage"/><TextBlock Classes="metric-value" Text="{Binding CpuText}"/><ProgressBar Value="{Binding Current.CpuPercent}" Maximum="100"/><TextBlock Classes="muted" Text="Across all logical processors"/></StackPanel></Border>
+              <Border Classes="card"><StackPanel Spacing="10"><TextBlock Classes="muted" Text="physical memory"/><TextBlock Classes="metric-small" Text="{Binding MemoryText}"/><ProgressBar Value="{Binding MemoryPercent}" Maximum="100"/></StackPanel></Border>
+            </StackPanel>
+            <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="activity"/>
+              <Border Classes="card"><Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="8">
+                <TextBlock Text="Running processes"/><TextBlock Grid.Column="1" Classes="gold-value" Text="{Binding ProcessCount}"/>
+                <TextBlock Grid.Row="1" Text="Network endpoints"/><TextBlock Grid.Row="1" Grid.Column="1" Classes="gold-value" Text="{Binding ConnectionCount}"/>
+                <TextBlock Grid.Row="2" Text="Findings to review"/><TextBlock Grid.Row="2" Grid.Column="1" Classes="gold-value" Text="{Binding FindingCount}"/>
+              </Grid></Border>
+            </StackPanel>
+          </StackPanel>
+          <StackPanel Grid.Row="1" Grid.Column="1" Spacing="18">
+            <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="resource trend · recent samples"/>
+              <Border Classes="card" Padding="8"><StackPanel Spacing="6"><local:HistoryChartControl IsVisible="{Binding ShowDiagrams}" Height="125" Items="{Binding RecentSamples}"/><StackPanel Orientation="Horizontal" Spacing="18" Margin="8,0"><TextBlock Foreground="#88B9AD" Text="— cpu"/><TextBlock Foreground="#7FA9BD" Text="— memory"/></StackPanel></StackPanel></Border>
+            </StackPanel>
+            <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="active processes"/>
+              <Border Classes="card" Padding="0"><DataGrid Height="330" ItemsSource="{Binding OverviewProcesses}" SelectedItem="{Binding SelectedProcess, Mode=TwoWay}" SelectionChanged="ProcessGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="0">
+                <DataGrid.Columns><DataGridTextColumn Header="application" Binding="{Binding Name}" Width="2*"/><DataGridTextColumn Header="pid" Binding="{Binding Pid}" Width="70"/><DataGridTextColumn Header="cpu" Binding="{Binding CpuText}" Width="80"/><DataGridTextColumn Header="memory" Binding="{Binding MemoryText}" Width="100"/></DataGrid.Columns>
+              </DataGrid></Border>
+            </StackPanel>
+            <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="network activity"/>
+              <Border Classes="card" Padding="0"><DataGrid Height="280" ItemsSource="{Binding OverviewNetworkFlows}" SelectedItem="{Binding SelectedNetworkFlow, Mode=TwoWay}" SelectionChanged="NetworkGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="0">
+                <DataGrid.Columns><DataGridTextColumn Header="application" Binding="{Binding ProcessName}" Width="1.5*"/><DataGridTextColumn Header="port" Binding="{Binding LocalPort}" Width="70"/><DataGridTextColumn Header="remote" Binding="{Binding RemoteEndpoint}" Width="2*"/><DataGridTextColumn Header="state" Binding="{Binding State}" Width="100"/></DataGrid.Columns>
+              </DataGrid></Border>
+            </StackPanel>
+          </StackPanel>
+          <StackPanel x:Name="OverviewSide" Grid.Row="1" Grid.Column="2" Spacing="18">
+            <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="storage"/>
+              <Border Classes="card"><StackPanel Spacing="14"><ItemsControl ItemsSource="{Binding Current.Drives}"><ItemsControl.ItemTemplate><DataTemplate><StackPanel Spacing="5" Margin="0,0,0,12"><Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding Name}" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Classes="muted" Text="{Binding UsedPercent, StringFormat='{}{0:N0}%'}"/></Grid><ProgressBar Value="{Binding UsedPercent}" Maximum="100"/><TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding Summary}"/></StackPanel></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></StackPanel></Border>
+            </StackPanel>
+            <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="security"/>
+              <Border Classes="card"><StackPanel Spacing="8"><TextBlock Classes="section-title" Text="Explainable findings"/><TextBlock Text="{Binding FindingCount, StringFormat='{}{0} processes need review'}" Foreground="#88B9AD"/><TextBlock Classes="muted" Text="Local rules explain why a process may deserve attention. A score alone is not a malware verdict." TextWrapping="Wrap"/></StackPanel></Border>
+            </StackPanel>
+            <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="capabilities"/>
+              <Border Classes="card"><StackPanel Spacing="8"><TextBlock Classes="section-title" Text="Add to your workflow"/><TextBlock Classes="muted" Text="Install Explorer integration, startup, or a desktop copy from inside the app." TextWrapping="Wrap"/><Button Classes="primary" HorizontalAlignment="Left" Content="open capabilities" Click="OpenCapabilities_Click"/></StackPanel></Border>
+            </StackPanel>
+            <StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="inspector · select any row"/>
+              <Border Classes="card"><TextBlock Classes="technical" Text="{Binding InspectorDetails}" TextWrapping="Wrap"/></Border>
+            </StackPanel>
+          </StackPanel>
+        </Grid></ScrollViewer>
+      </TabItem>
+
+      <TabItem><TabItem.Header><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Width="14" Height="14" Data="M2,3 H15 V5 H2 Z M2,8 H12 V10 H2 Z M2,13 H9 V15 H2 Z"/><TextBlock VerticalAlignment="Center" Text="processes"/></StackPanel></TabItem.Header>
+        <Grid Margin="16" RowDefinitions="Auto,Auto,*" RowSpacing="14">
+          <StackPanel Spacing="4"><TextBlock Classes="page-title" Text="processes"/><TextBlock Classes="muted" Text="Live process use and guarded controls."/></StackPanel>
+          <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+            <TextBox PlaceholderText="Search name, PID, or path" Text="{Binding ProcessSearch, Mode=TwoWay}"/>
+            <Button Grid.Column="1" Content="restart…" Click="RestartProcess_Click"/>
+            <Button Grid.Column="2" Classes="danger" Content="terminate…" Click="TerminateProcess_Click"/>
+          </Grid>
+          <Grid Grid.Row="2" Classes="inspector-layout" ColumnDefinitions="*,360" ColumnSpacing="12" RowSpacing="10">
+          <Border Classes="card" Padding="0"><DataGrid ItemsSource="{Binding VisibleProcesses}" SelectedItem="{Binding SelectedProcess, Mode=TwoWay}" SelectionChanged="ProcessGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns><DataGridTextColumn Header="application" Binding="{Binding Name}" Width="2*"/><DataGridTextColumn Header="pid" Binding="{Binding Pid}" Width="80"/><DataGridTextColumn Header="cpu" Binding="{Binding CpuText}" Width="90"/><DataGridTextColumn Header="memory" Binding="{Binding MemoryText}" Width="110"/><DataGridTextColumn Header="threads" Binding="{Binding ThreadCount}" Width="90"/><DataGridTextColumn Header="handles" Binding="{Binding HandleCount}" Width="90"/><DataGridTextColumn Header="executable" Binding="{Binding ExecutablePath}" Width="3*"/></DataGrid.Columns>
+          </DataGrid></Border>
+          <Border Grid.Column="1" Classes="card"><ScrollViewer><StackPanel Spacing="12"><TextBlock Classes="eyebrow" Text="process / technical details"/><StackPanel Orientation="Horizontal" Spacing="8"><Button Content="owned ports →" Click="OpenProcessPorts_Click"/><Button Content="deep inspect…" Click="DeepInspectProcess_Click"/></StackPanel><TextBlock Classes="technical" Text="{Binding ProcessTechnicalDetails}" TextWrapping="Wrap"/><TextBlock Classes="eyebrow" Text="on-demand file + module inspection"/><ProgressBar IsIndeterminate="True" IsVisible="{Binding IsDeepInspecting}"/><TextBlock Classes="technical" Text="{Binding DeepProcessDetails}" TextWrapping="Wrap"/><StackPanel IsVisible="{Binding ShowDiagrams}" Spacing="6"><TextBlock Classes="eyebrow" Text="process / endpoint map"/><local:NetworkMapControl Height="258" Items="{Binding ProcessNetworkFlows}" FlowSelected="NetworkMap_FlowSelected"/></StackPanel></StackPanel></ScrollViewer></Border>
+          </Grid>
+        </Grid>
+      </TabItem>
+
+      <TabItem><TabItem.Header><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Width="14" Height="14" Data="M6,1 H11 V6 H6 Z M1,11 H6 V16 H1 Z M11,11 H16 V16 H11 Z M8,6 H9 V9 H14 V11 H13 V10 H4 V11 H3 V9 H8 Z"/><TextBlock VerticalAlignment="Center" Text="network"/></StackPanel></TabItem.Header>
+        <Grid Margin="16" RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="14">
+          <StackPanel Spacing="4"><TextBlock Classes="page-title" Text="network inspector"/><TextBlock Classes="muted" Text="Which application owns a port, and where its connection goes."/><TextBlock Classes="muted" Text="{Binding NetworkCollectorStatus}" TextWrapping="Wrap"/></StackPanel>
+          <Border Grid.Row="1" Classes="notice"><TextBlock Text="PORTABLE VISIBILITY · Live IPv4/IPv6 TCP endpoints and bound UDP ports. These are endpoints, not HTTP request counts. Capture of short-lived flows needs an enhanced collector." TextWrapping="Wrap"/></Border>
+          <TextBox Grid.Row="2" PlaceholderText="search process, ip, port, protocol · pid:123 for an exact owner" Text="{Binding NetworkSearch, Mode=TwoWay}"/>
+          <Grid Grid.Row="3" IsVisible="{Binding ShowDiagrams}" ColumnDefinitions="1*,2*" ColumnSpacing="12">
+            <Border Classes="card"><StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="endpoint count / recent captures"/><local:EndpointHistoryControl Height="90" Items="{Binding EndpointCounts}"/><TextBlock Classes="muted" Text="{Binding NetworkSummary}" TextWrapping="Wrap"/></StackPanel></Border>
+            <Border Grid.Column="1" Classes="card"><StackPanel Spacing="6"><TextBlock Classes="eyebrow" Text="connection map / first filtered endpoints"/><local:NetworkMapControl Height="132" Items="{Binding VisibleNetworkFlows}" FlowSelected="NetworkMap_FlowSelected"/></StackPanel></Border>
+          </Grid>
+          <Grid Grid.Row="4" ColumnDefinitions="*,320" ColumnSpacing="12">
+          <Border Classes="card" Padding="0"><DataGrid ItemsSource="{Binding VisibleNetworkFlows}" SelectedItem="{Binding SelectedNetworkFlow, Mode=TwoWay}" SelectionChanged="NetworkGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns><DataGridTextColumn Header="application" Binding="{Binding ProcessName}" Width="1.2*"/><DataGridTextColumn Header="pid" Binding="{Binding Pid}" Width="70"/><DataGridTextColumn Header="type" Binding="{Binding Protocol}" Width="70"/><DataGridTextColumn Header="ip" Binding="{Binding AddressFamily}" Width="60"/><DataGridTextColumn Header="local" Binding="{Binding LocalEndpoint}" Width="1.5*"/><DataGridTextColumn Header="remote" Binding="{Binding RemoteEndpoint}" Width="1.5*"/><DataGridTextColumn Header="state" Binding="{Binding State}" Width="110"/><DataGridTextColumn Header="explanation" Binding="{Binding Explanation}" Width="2.5*"/></DataGrid.Columns>
+          </DataGrid></Border>
+          <Border Grid.Column="1" Classes="card"><ScrollViewer><StackPanel Spacing="12"><TextBlock Classes="eyebrow" Text="endpoint / technical details"/><Button HorizontalAlignment="Left" Content="inspect owning process →" Click="OpenNetworkOwner_Click"/><TextBlock Classes="technical" Text="{Binding NetworkTechnicalDetails}" TextWrapping="Wrap"/></StackPanel></ScrollViewer></Border>
+          </Grid>
+        </Grid>
+      </TabItem>
+
+      <TabItem><TabItem.Header><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Width="14" Height="14" Data="M2,2 H15 V6 H2 Z M2,8 H15 V12 H2 Z M2,14 H15 V16 H2 Z"/><TextBlock VerticalAlignment="Center" Text="services"/></StackPanel></TabItem.Header>
+        <Grid Margin="16" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="14">
+          <StackPanel Spacing="4"><TextBlock Classes="page-title" Text="services"/><TextBlock Classes="muted" Text="Windows services, state, startup mode, and owning PID."/><TextBlock Classes="muted" Text="{Binding ServiceStatusText}"/><ProgressBar IsIndeterminate="True" IsVisible="{Binding IsServiceBusy}"/></StackPanel>
+          <Border Grid.Row="1" Classes="notice"><TextBlock Text="Starting, stopping, or pausing a service may require administrator rights. Windows will report access denied for protected services in portable mode." TextWrapping="Wrap"/></Border>
+          <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" IsEnabled="{Binding !IsServiceBusy}"><Button Content="start…" Click="ServiceStart_Click"/><Button Content="stop…" Click="ServiceStop_Click"/><Button Content="pause…" Click="ServicePause_Click"/><Button Content="continue…" Click="ServiceContinue_Click"/><Button Content="restart…" Click="ServiceRestart_Click"/><Button Classes="danger" Content="terminate host…" Click="TerminateServiceHost_Click"/></StackPanel>
+          <Grid Grid.Row="3" Classes="inspector-layout" ColumnDefinitions="*,360" ColumnSpacing="12" RowSpacing="10">
+          <Border Classes="card" Padding="0"><DataGrid ItemsSource="{Binding Services}" SelectedItem="{Binding SelectedService, Mode=TwoWay}" SelectionChanged="ServiceGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True"><DataGrid.Columns><DataGridTextColumn Header="display name" Binding="{Binding DisplayName}" Width="2*"/><DataGridTextColumn Header="service" Binding="{Binding Name}" Width="1.5*"/><DataGridTextColumn Header="status" Binding="{Binding Status}" Width="110"/><DataGridTextColumn Header="pid" Binding="{Binding ProcessId}" Width="90"/><DataGridTextColumn Header="startup" Binding="{Binding StartType}" Width="110"/></DataGrid.Columns></DataGrid></Border>
+          <Border Grid.Column="1" Classes="card"><ScrollViewer><StackPanel Spacing="12"><TextBlock Classes="eyebrow" Text="service / technical details"/><Button HorizontalAlignment="Left" Content="inspect host process →" Click="OpenServiceHost_Click"/><TextBlock Classes="technical" Text="{Binding ServiceTechnicalDetails}" TextWrapping="Wrap"/>
+              <TextBlock Classes="eyebrow" Text="host / port usage"/><TextBlock Classes="muted" Text="{Binding ServiceNetworkSummary}" TextWrapping="Wrap"/>
+              <local:NetworkMapControl IsVisible="{Binding ShowDiagrams}" Height="258" Items="{Binding ServiceNetworkFlows}" FlowSelected="NetworkMap_FlowSelected"/>
+              <DataGrid Height="180" ItemsSource="{Binding ServiceNetworkFlows}" SelectedItem="{Binding SelectedNetworkFlow, Mode=TwoWay}" SelectionChanged="NetworkGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True">
+                <DataGrid.Columns><DataGridTextColumn Header="pid" Binding="{Binding Pid}" Width="60"/><DataGridTextColumn Header="type" Binding="{Binding Protocol}" Width="55"/><DataGridTextColumn Header="local" Binding="{Binding LocalEndpoint}" Width="*"/><DataGridTextColumn Header="remote" Binding="{Binding RemoteEndpoint}" Width="*"/></DataGrid.Columns>
+              </DataGrid></StackPanel></ScrollViewer></Border>
+          </Grid>
+        </Grid>
+      </TabItem>
+
+      <TabItem><TabItem.Header><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Width="14" Height="14" Data="M1,3 H7 L9,5 H16 V15 H1 Z"/><TextBlock VerticalAlignment="Center" Text="folder inspector"/></StackPanel></TabItem.Header>
+        <Grid Margin="16" RowDefinitions="Auto,Auto,*" RowSpacing="14"><StackPanel Spacing="4"><TextBlock Classes="page-title" Text="folder inspector"/><TextBlock Classes="muted" Text="See applications launched from or loading modules within a folder."/><ProgressBar IsIndeterminate="True" IsVisible="{Binding IsFolderScanning}"/></StackPanel>
+          <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12"><Button Classes="primary" Content="choose folder" Click="InspectFolder_Click"/><TextBlock Classes="muted" VerticalAlignment="Center" Text="Open-file handle inspection needs an elevated collector."/></StackPanel>
+          <Grid Grid.Row="2" Classes="inspector-layout" ColumnDefinitions="*,360" ColumnSpacing="12" RowSpacing="10">
+          <Border Classes="card" Padding="0"><DataGrid ItemsSource="{Binding FolderRelationships}" SelectedItem="{Binding SelectedFolderRelationship, Mode=TwoWay}" SelectionChanged="FolderGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True"><DataGrid.Columns><DataGridTextColumn Header="process" Binding="{Binding ProcessName}" Width="1.4*"/><DataGridTextColumn Header="pid" Binding="{Binding Process.Pid}" Width="80"/><DataGridTextColumn Header="relationship" Binding="{Binding Kind}" Width="140"/><DataGridTextColumn Header="confidence" Binding="{Binding Confidence}" Width="100"/><DataGridTextColumn Header="path" Binding="{Binding Path}" Width="4*"/></DataGrid.Columns></DataGrid></Border>
+          <Border Grid.Column="1" Classes="card"><ScrollViewer><StackPanel Spacing="12"><TextBlock Classes="eyebrow" Text="folder link / technical details"/><TextBlock Classes="technical" Text="{Binding FolderTechnicalDetails}" TextWrapping="Wrap"/></StackPanel></ScrollViewer></Border>
+          </Grid>
+        </Grid>
+      </TabItem>
+
+      <TabItem><TabItem.Header><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Width="14" Height="14" Data="M2,2 H15 V15 H2 Z M4,4 V8 H8 V4 Z M10,4 V8 H13 V4 Z M4,10 V13 H13 V10 Z"/><TextBlock VerticalAlignment="Center" Text="disk analyzer"/></StackPanel></TabItem.Header>
+        <Grid Margin="18" RowDefinitions="Auto,Auto,*,200,132" RowSpacing="10">
+          <StackPanel Spacing="4"><TextBlock Classes="page-title" Text="disk analyzer"/><TextBlock Classes="muted" Text="Browse folders, file types, largest files, and a proportional treemap."/><ProgressBar IsIndeterminate="True" IsVisible="{Binding IsDiskScanning}"/></StackPanel>
+          <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto,Auto" ColumnSpacing="10"><Button Classes="primary" Content="choose folder" Click="ScanDisk_Click"/><Button Grid.Column="1" Content="cancel scan" Click="CancelScan_Click"/><TextBox Grid.Column="2" Text="{Binding DiskPath}" IsReadOnly="True"/><TextBlock Grid.Column="3" VerticalAlignment="Center" Classes="muted" Text="{Binding DiskCount}"/><TextBlock Grid.Column="4" VerticalAlignment="Center" Classes="gold-value" Text="{Binding DiskTotal}"/></Grid>
+          <Grid Grid.Row="2" ColumnDefinitions="245,*,215" ColumnSpacing="12">
+            <Border Classes="card" Padding="8"><StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="folders" Margin="8,4"/><TreeView ItemsSource="{Binding DiskTree}" SelectedItem="{Binding SelectedDiskFolder, Mode=TwoWay}"><TreeView.ItemTemplate><TreeDataTemplate ItemsSource="{Binding Children}"><TextBlock Text="{Binding Display}"/></TreeDataTemplate></TreeView.ItemTemplate></TreeView></StackPanel></Border>
+            <Border Grid.Column="1" Classes="card" Padding="0"><DataGrid x:Name="DiskFilesGrid" ItemsSource="{Binding VisibleDiskEntries}" SelectedItem="{Binding SelectedDiskEntry}" SelectionChanged="DiskGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True"><DataGrid.Columns><DataGridTextColumn Header="file" Binding="{Binding Name}" Width="2*"/><DataGridTextColumn Header="type" Binding="{Binding Extension}" Width="75"/><DataGridTextColumn Header="size" Binding="{Binding SizeText}" Width="105"/><DataGridTextColumn Header="path" Binding="{Binding Path}" Width="3*"/></DataGrid.Columns></DataGrid></Border>
+            <Border Grid.Column="2" Classes="card" Padding="0"><StackPanel><TextBlock Classes="eyebrow" Text="file types" Margin="14,12"/><DataGrid ItemsSource="{Binding DiskExtensions}" SelectedItem="{Binding SelectedExtension, Mode=TwoWay}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="None"><DataGrid.Columns><DataGridTextColumn Binding="{Binding Extension}" Width="*"/><DataGridTextColumn Binding="{Binding TotalText}" Width="90"/></DataGrid.Columns></DataGrid></StackPanel></Border>
+          </Grid>
+          <Border Grid.Row="3" Classes="card" Padding="5"><local:TreemapControl x:Name="DiskTreemap" Items="{Binding VisibleDiskEntries}" EntrySelected="DiskTreemap_EntrySelected"/></Border>
+          <Border Grid.Row="4" Classes="card"><ScrollViewer><StackPanel Spacing="8"><TextBlock Classes="eyebrow" Text="file / technical details"/><Button HorizontalAlignment="Left" Content="inspect folder processes →" Click="InspectSelectedDiskFolder_Click"/><TextBlock Classes="technical" Text="{Binding DiskTechnicalDetails}" TextWrapping="Wrap"/></StackPanel></ScrollViewer></Border>
+        </Grid>
+      </TabItem>
+
+      <TabItem><TabItem.Header><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Width="14" Height="14" Data="M8,1 L15,4 V9 L12,14 L8,17 L4,14 L1,9 V4 Z M7,5 V10 H9 V5 Z M7,12 V14 H9 V12 Z"/><TextBlock VerticalAlignment="Center" Text="security"/></StackPanel></TabItem.Header>
+        <Grid Margin="16" RowDefinitions="Auto,Auto,*" RowSpacing="14"><StackPanel Spacing="4"><TextBlock Classes="page-title" Text="security findings"/><TextBlock Classes="muted" Text="Local, explainable signals from running applications."/></StackPanel>
+          <Border Grid.Row="1" Classes="notice"><TextBlock Text="Early rule engine · Scores reflect limited local evidence. Signature trust, Defender scans, behavioral AI, and quarantine are not active in this build." TextWrapping="Wrap"/></Border>
+          <Grid Grid.Row="2" Classes="inspector-layout" ColumnDefinitions="*,360" ColumnSpacing="12" RowSpacing="10">
+          <Border Classes="card" Padding="0"><DataGrid ItemsSource="{Binding Findings}" SelectedItem="{Binding SelectedFinding, Mode=TwoWay}" SelectionChanged="FindingGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True"><DataGrid.Columns><DataGridTextColumn Header="process" Binding="{Binding ProcessName}" Width="1.2*"/><DataGridTextColumn Header="score" Binding="{Binding Score}" Width="75"/><DataGridTextColumn Header="severity" Binding="{Binding Severity}" Width="105"/><DataGridTextColumn Header="confidence" Binding="{Binding ConfidenceText}" Width="110"/><DataGridTextColumn Header="evidence" Binding="{Binding Explanation}" Width="4*"/></DataGrid.Columns></DataGrid></Border>
+          <Border Grid.Column="1" Classes="card"><ScrollViewer><StackPanel Spacing="12"><TextBlock Classes="eyebrow" Text="finding / raw evidence"/><Button HorizontalAlignment="Left" Content="inspect process →" Click="OpenFindingProcess_Click"/><TextBlock Classes="technical" Text="{Binding FindingTechnicalDetails}" TextWrapping="Wrap"/></StackPanel></ScrollViewer></Border>
+          </Grid>
+        </Grid>
+      </TabItem>
+
+      <TabItem><TabItem.Header><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Width="14" Height="14" Data="M2,3 H4 V14 H16 V16 H2 Z M6,9 H8 V12 H6 Z M10,5 H12 V12 H10 Z M14,1 H16 V12 H14 Z"/><TextBlock VerticalAlignment="Center" Text="history"/></StackPanel></TabItem.Header>
+        <Grid Margin="18" RowDefinitions="Auto,Auto,170,*" RowSpacing="10">
+          <StackPanel Spacing="4"><TextBlock Classes="page-title" Text="history / telemetry"/><TextBlock Classes="muted" Text="Select a sample to inspect raw counters. Local retention: seven days or 1 GB."/></StackPanel>
+          <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="12"><CheckBox Content="Private session — do not save new samples" IsChecked="{Binding PrivateSession, Mode=TwoWay}"/><Button Grid.Column="1" Classes="danger" Content="clear local history…" Click="ClearHistory_Click"/></Grid>
+          <Border Grid.Row="2" Classes="card" Padding="8"><local:HistoryChartControl IsVisible="{Binding ShowDiagrams}" Items="{Binding RecentSamples}"/></Border>
+          <Grid Grid.Row="3" Classes="inspector-layout" ColumnDefinitions="*,360" ColumnSpacing="12" RowSpacing="10">
+            <Border Classes="card" Padding="0"><DataGrid ItemsSource="{Binding RecentSamples}" SelectedItem="{Binding SelectedResourceSample, Mode=TwoWay}" SelectionChanged="HistoryGrid_SelectionChanged" AutoGenerateColumns="False" IsReadOnly="True"><DataGrid.Columns><DataGridTextColumn Header="timestamp" Binding="{Binding Timestamp}" Width="2*"/><DataGridTextColumn Header="cpu %" Binding="{Binding CpuPercent}" Width="*"/><DataGridTextColumn Header="memory %" Binding="{Binding MemoryPercent}" Width="*"/><DataGridTextColumn Header="drives" Binding="{Binding Drives.Count}" Width="*"/></DataGrid.Columns></DataGrid></Border>
+            <Border Grid.Column="1" Classes="card"><ScrollViewer><StackPanel Spacing="12"><TextBlock Classes="eyebrow" Text="sample / raw counters"/><TextBlock Classes="technical" Text="{Binding ResourceTechnicalDetails}" TextWrapping="Wrap"/></StackPanel></ScrollViewer></Border>
+          </Grid>
+        </Grid>
+      </TabItem>
+
+      <TabItem><TabItem.Header><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Width="14" Height="14" Data="M2,2 H7 V7 H2 Z M10,2 H15 V7 H10 Z M2,10 H7 V15 H2 Z M12,9 H14 V11 H16 V13 H14 V15 H12 V13 H10 V11 H12 Z"/><TextBlock VerticalAlignment="Center" Text="capabilities"/></StackPanel></TabItem.Header>
+        <ScrollViewer><StackPanel Margin="16" Spacing="16"><StackPanel Spacing="4"><TextBlock Classes="page-title" Text="capabilities center"/><TextBlock Classes="muted" Text="Install useful extras here. Each card shows what will change on your computer."/></StackPanel>
+          <Border Classes="notice"><TextBlock Text="Available now: per-user desktop copy, Explorer menu, and sign-in launch. Driver capture, background service, and automatic updates need production packages and are marked unavailable." TextWrapping="Wrap"/></Border>
+          <ItemsControl ItemsSource="{Binding Components}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate><Border Classes="card" Width="345" MinHeight="250" Margin="0,0,12,12"><Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="9">
+            <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="section-title" Text="{Binding Name}" TextWrapping="Wrap"/><Border Grid.Column="1" Classes="pill" Margin="6,0,0,0"><TextBlock Classes="eyebrow" Text="{Binding StatusText}"/></Border></Grid>
+            <TextBlock Grid.Row="1" Classes="muted" Text="{Binding Version, StringFormat='Version {0}'}"/>
+            <TextBlock Grid.Row="2" Classes="muted" Text="{Binding Publisher, StringFormat='Publisher: {0}'}"/>
+            <ItemsControl Grid.Row="3" ItemsSource="{Binding Capabilities}"><ItemsControl.ItemTemplate><DataTemplate><TextBlock Margin="0,3" Foreground="#88B9AD" Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap"/></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+            <Grid Grid.Row="4" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8"><TextBlock Classes="muted" VerticalAlignment="Center" Text="{Binding PackageSize}"/><Button Grid.Column="1" Content="details" Click="ReviewComponent_Click"/><Button Grid.Column="2" Classes="primary" Content="{Binding ActionText}" IsEnabled="{Binding CanChange}" Click="ChangeComponent_Click"/></Grid>
+          </Grid></Border></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+        </StackPanel></ScrollViewer>
+      </TabItem>
+
+      <TabItem><TabItem.Header><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Width="14" Height="14" Data="M2,3 H16 V5 H2 Z M2,8 H16 V10 H2 Z M2,13 H16 V15 H2 Z M5,1 H7 V7 H5 Z M11,6 H13 V12 H11 Z M6,11 H8 V17 H6 Z"/><TextBlock VerticalAlignment="Center" Text="settings"/></StackPanel></TabItem.Header>
+        <ScrollViewer><StackPanel Margin="16" Spacing="16"><StackPanel Spacing="4"><TextBlock Classes="page-title" Text="settings"/><TextBlock Classes="muted" Text="Control the appearance and local data used by this session."/></StackPanel>
+          <Border Classes="card"><StackPanel Spacing="12"><TextBlock Classes="section-title" Text="Appearance"/><TextBlock Classes="muted" Text="quiet terminal / graphite surfaces / muted green accent"/>
+            <Grid ColumnDefinitions="160,*" ColumnSpacing="12"><TextBlock VerticalAlignment="Center" Text="text size"/><Slider Grid.Column="1" Minimum="0.85" Maximum="1.25" TickFrequency="0.05" IsSnapToTickEnabled="True" Value="{Binding UiScale, Mode=TwoWay}"/></Grid>
+            <CheckBox Content="compact table rows" IsChecked="{Binding CompactRows, Mode=TwoWay}"/>
+            <CheckBox Content="show connection diagrams and activity charts" IsChecked="{Binding ShowDiagrams, Mode=TwoWay}"/>
+            <TextBlock Classes="muted" Text="{Binding PreferencesStatus}" TextWrapping="Wrap"/></StackPanel></Border>
+          <Border Classes="card"><StackPanel Spacing="10"><TextBlock Classes="section-title" Text="Monitoring impact"/><CheckBox Content="Fast monitoring — refresh more often (uses more CPU)" IsChecked="{Binding FastMonitoring, Mode=TwoWay}"/><TextBlock Classes="muted" Text="Default lean mode refreshes resources every 4 seconds, processes and ports every 10 seconds, and services and security every minute. Fast mode uses 2, 5, and 30 seconds." TextWrapping="Wrap"/></StackPanel></Border>
+          <Border Classes="card"><StackPanel Spacing="10"><TextBlock Classes="section-title" Text="Privacy"/><CheckBox Content="Private session — do not save new monitoring samples" IsChecked="{Binding PrivateSession, Mode=TwoWay}"/><TextBlock Classes="muted" Text="The portable app uses its Data folder for history when the folder is writable."/></StackPanel></Border>
+        </StackPanel></ScrollViewer>
+      </TabItem>
+    </TabControl>
+
+    <Border Grid.Row="1" Background="#10151A" Padding="10,0">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="12">
+        <TextBlock Classes="muted" VerticalAlignment="Center" Text="{Binding Status}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Status}"/>
+        <CheckBox Grid.Column="1" Content="pause sampling" IsChecked="{Binding SamplingPaused, Mode=TwoWay}" MinHeight="24" FontSize="11"/>
+        <Button Grid.Column="2" Content="export view" Click="ExportView_Click" MinHeight="24" Padding="8,2"/>
+        <TextBlock Grid.Column="3" Classes="muted" VerticalAlignment="Center" Text="{Binding SelfImpactText}"/>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

@@ -1,0 +1,26 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Style Selector="Window"><Setter Property="FontSize" Value="{DynamicResource ConsoleBodySize}"/><Setter Property="FontFamily" Value="Cascadia Mono,Consolas"/><Setter Property="Foreground" Value="#D7D6D2"/></Style>
+  <Style Selector="TextBlock.brand"><Setter Property="FontFamily" Value="Cascadia Mono,Consolas"/><Setter Property="FontSize" Value="13"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="#E9E9EB"/></Style>
+  <Style Selector="TextBlock.page-title"><Setter Property="FontSize" Value="{DynamicResource ConsoleTitleSize}"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="#EFEFEA"/></Style>
+  <Style Selector="TextBlock.section-title"><Setter Property="FontSize" Value="14"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="#E7E7EA"/></Style>
+  <Style Selector="TextBlock.eyebrow"><Setter Property="FontFamily" Value="Cascadia Mono,Consolas"/><Setter Property="FontSize" Value="{DynamicResource ConsoleSmallSize}"/><Setter Property="Foreground" Value="#9D9DA8"/></Style>
+  <Style Selector="TextBlock.muted"><Setter Property="FontSize" Value="{DynamicResource ConsoleBodySize}"/><Setter Property="Foreground" Value="#9A9AA5"/></Style>
+  <Style Selector="TextBlock.metric-value"><Setter Property="FontFamily" Value="Cascadia Mono,Consolas"/><Setter Property="FontSize" Value="27"/><Setter Property="Foreground" Value="#88B9AD"/></Style>
+  <Style Selector="TextBlock.metric-small"><Setter Property="FontFamily" Value="Cascadia Mono,Consolas"/><Setter Property="FontSize" Value="{DynamicResource ConsoleTitleSize}"/><Setter Property="Foreground" Value="#88B9AD"/></Style>
+  <Style Selector="TextBlock.gold-value"><Setter Property="FontFamily" Value="Cascadia Mono,Consolas"/><Setter Property="FontSize" Value="14"/><Setter Property="Foreground" Value="#88B9AD"/></Style>
+  <Style Selector="TextBlock.technical"><Setter Property="FontFamily" Value="Cascadia Mono,Consolas"/><Setter Property="FontSize" Value="{DynamicResource ConsoleSmallSize}"/><Setter Property="LineHeight" Value="18"/><Setter Property="Foreground" Value="#C5C5BF"/></Style>
+  <Style Selector="Border.card"><Setter Property="Background" Value="#151B21"/><Setter Property="BorderBrush" Value="#29323C"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="3"/><Setter Property="Padding" Value="12"/></Style>
+  <Style Selector="Border.notice"><Setter Property="Background" Value="#19232A"/><Setter Property="BorderBrush" Value="#344955"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="5"/><Setter Property="Padding" Value="14"/></Style>
+  <Style Selector="Border.pill"><Setter Property="Background" Value="#25231C"/><Setter Property="BorderBrush" Value="#49402D"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="4"/><Setter Property="Padding" Value="8,5"/></Style>
+  <Style Selector="Button"><Setter Property="MinHeight" Value="30"/><Setter Property="Padding" Value="10,5"/><Setter Property="CornerRadius" Value="3"/><Setter Property="FontFamily" Value="Cascadia Mono,Consolas"/></Style>
+  <Style Selector="Button.primary"><Setter Property="Background" Value="#88B9AD"/><Setter Property="Foreground" Value="#10151A"/></Style>
+  <Style Selector="Button.primary:pointerover"><Setter Property="Background" Value="#B3D6CB"/></Style>
+  <Style Selector="Button.danger"><Setter Property="Foreground" Value="#F28D88"/></Style>
+  <Style Selector="TabControl.main-nav /template/ TabStrip"><Setter Property="Background" Value="#10151A"/></Style>
+  <Style Selector="TabControl.main-nav TabItem"><Setter Property="MinWidth" Value="174"/><Setter Property="HorizontalContentAlignment" Value="Left"/><Setter Property="Foreground" Value="#ABB3BF"/><Setter Property="Padding" Value="14,13"/><Setter Property="FontSize" Value="{DynamicResource ConsoleSmallSize}"/></Style>
+  <Style Selector="TabControl.main-nav TabItem:selected"><Setter Property="Foreground" Value="#88B9AD"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+  <Style Selector="DataGrid"><Setter Property="GridLinesVisibility" Value="None"/><Setter Property="BorderThickness" Value="0"/><Setter Property="RowHeight" Value="{Binding TableRowHeight}"/><Setter Property="FontSize" Value="{DynamicResource ConsoleSmallSize}"/><Setter Property="FontFamily" Value="Cascadia Mono,Consolas"/></Style>
+  <Style Selector="DataGridRow:selected"><Setter Property="Background" Value="#273F3C"/><Setter Property="Foreground" Value="#C4E3D8"/></Style>
+  <Style Selector="ProgressBar"><Setter Property="MinWidth" Value="0"/><Setter Property="Height" Value="5"/><Setter Property="CornerRadius" Value="3"/><Setter Property="Foreground" Value="#88B9AD"/></Style>
+</Styles>
