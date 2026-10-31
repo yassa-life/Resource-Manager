@@ -1,6 +1,8 @@
 # Resource Manager
 
-Resource Manager is a portable-first Windows diagnostics prototype. It has live process, resource, service, IPv4 TCP/UDP ownership, disk, folder relationship, local history, and explainable risk screens. It does **not** yet meet the full specification. See [the feature audit](docs/FEATURE_AUDIT.md).
+A portable, open-source Windows resource manager for exploring processes, services, network activity, disks, system resources, history, and explainable security findings—all from one nerd-friendly dashboard.
+
+Resource Manager is currently a portable-first Windows diagnostics prototype. It has live process, resource, service, IPv4 TCP/UDP ownership, disk, folder relationship, local history, and explainable risk screens. It does **not** yet meet the full specification. See [the feature audit](docs/FEATURE_AUDIT.md).
 
 ## Run locally
 
